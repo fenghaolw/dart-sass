@@ -80,12 +80,12 @@ jobs:
   include:
   # Minimize tests on other OSes to avoid long cycle times.
   - os: windows
-    # Windows doesn't support Ruby yet.
+    # We have to explicitly list "shell" as the language because Windows doesn't
+    # support Ruby yet.
     language: shell
     env: TASK=tests
   - os: windows
-    # Windows doesn't support Ruby yet.
-    language: shell
+    language: node_js
     # TODO(nweiz): Make this "stable" when laverdet/node-fibers#409 is fixed.
     env: TASK=tests NODE_VERSION=11
   - os: osx
