@@ -15,10 +15,10 @@ import '../tool/grind/synchronize.dart' as synchronize;
 void main() {
   test("synchronized files are up-to-date", () {
     synchronize.sources.forEach((sourcePath, targetPath) {
-      var source = File(sourcePath).readAsStringSync();
+      var source = File(sourcePath).readAsBytesSync();
       var target = File(targetPath).readAsStringSync();
 
-      var hash = sha1.convert(utf8.encode(source));
+      var hash = sha1.convert(source);
       if (!target.contains("Checksum: $hash")) {
         fail("$targetPath is out-of-date.\n"
             "Run pub run grinder to update it.");
