@@ -51,15 +51,14 @@ install:
 - curl -o dart.zip "https://storage.googleapis.com/dart-archive/channels/$DART_CHANNEL/release/$DART_VERSION/sdk/dartsdk-$os-x64-release.zip"
 - unzip dart.zip
 - export PATH="$PATH:`pwd`/dart-sdk/bin";
-- if [ "$os" = windows ]; then
-    echo 'pub.bat "$@"' > `pwd`/dart-sdk/bin/pub;
-    chmod a+x `pwd`/dart-sdk/bin/pub;
-  fi
+- if-windows() { if [ "$os" = windows ]; then "$@"; fi }
+- if-windows echo 'pub.bat "$@"' > `pwd`/dart-sdk/bin/pub
+- if-windows chmod a+x `pwd`/dart-sdk/bin/pub
 - pub get
 
 # Install the Node SDK if we're running Node tests.
 - if-node() { if [ ! -z "$NODE_VERSION" ]; then "$@"; fi }
-- if-node . "$HOME/.nvm/nvm.sh"
+- if [ "$os" != windows ]; then if-node . "$HOME/.nvm/nvm.sh"; fi
 - if-node nvm install "$NODE_VERSION"
 - if-node nvm use "$NODE_VERSION"
 - if-node pub run grinder before-test
