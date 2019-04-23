@@ -13,7 +13,7 @@ import 'package:test/test.dart';
 import '../tool/grind/synchronize.dart' as synchronize;
 
 /// The pattern of a checksum in a generated file.
-final _checksumPattern = RegExp(r"^// Checksum: (.*)$");
+final _checksumPattern = RegExp(r"^// Checksum: (.*)$", multiLine: true);
 
 void main() {
   synchronize.sources.forEach((sourcePath, targetPath) {
@@ -22,7 +22,7 @@ void main() {
       var actualHash = _checksumPattern.firstMatch(target)[1];
 
       var source = File(sourcePath).readAsBytesSync();
-      var expectedHash = sha1.convert(source);
+      var expectedHash = sha1.convert(source).toString();
       expect(actualHash, equals(expectedHash),
           reason: "$targetPath is out-of-date.\n"
               "Run pub run grinder to update it.");
