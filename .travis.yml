@@ -46,9 +46,15 @@ cache:
 
 install:
 # Install the Dart SDK.
-- curl -o dart.zip "https://storage.googleapis.com/dart-archive/channels/$DART_CHANNEL/release/$DART_VERSION/sdk/dartsdk-linux-x64-release.zip"
+- os="$TRAVIS_OS_NAME"
+- if [ "$os" = osx ]; then os=macos; fi
+- curl -o dart.zip "https://storage.googleapis.com/dart-archive/channels/$DART_CHANNEL/release/$DART_VERSION/sdk/dartsdk-$os-x64-release.zip"
 - unzip dart.zip
-- export PATH="$PATH:`pwd`/dart-sdk/bin"
+- export PATH="$PATH:`pwd`/dart-sdk/bin";
+- if [ "$os" = windows ]; then
+    echo 'pub.bat "$@"' > `pwd`/dart-sdk/bin/pub;
+    chmod a+x `pwd`/dart-sdk/bin/pub;
+  fi
 - pub get
 
 # Install the Node SDK if we're running Node tests.
@@ -70,10 +76,26 @@ install:
 
 script: tool/travis/test.sh
 
-## Deployment
-
 jobs:
   include:
+  # Minimize tests on other OSes to avoid long cycle times.
+  - os: windows
+    # Windows doesn't support Ruby yet.
+    language: shell
+    env: TASK=tests
+  - os: windows
+    # Windows doesn't support Ruby yet.
+    language: shell
+    # TODO(nweiz): Make this "stable" when laverdet/node-fibers#409 is fixed.
+    env: TASK=tests NODE_VERSION=11
+  - os: osx
+    env: TASK=tests
+  - os: osx
+    # TODO(nweiz): Make this "stable" when laverdet/node-fibers#409 is fixed.
+    env: TASK=tests NODE_VERSION=11
+
+  ## Deployment
+
   # Sanity check before releasing anywhere.
   - stage: sanity check
     if: &deploy-if
