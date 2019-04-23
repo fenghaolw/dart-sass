@@ -12,17 +12,20 @@ import 'package:test/test.dart';
 
 import '../tool/grind/synchronize.dart' as synchronize;
 
-void main() {
-  test("synchronized files are up-to-date", () {
-    synchronize.sources.forEach((sourcePath, targetPath) {
-      var source = File(sourcePath).readAsBytesSync();
-      var target = File(targetPath).readAsStringSync();
+/// The pattern of a checksum in a generated file.
+final _checksumPattern = RegExp(r"^// Checksum: (.*)$");
 
-      var hash = sha1.convert(source);
-      if (!target.contains("Checksum: $hash")) {
-        fail("$targetPath is out-of-date.\n"
-            "Run pub run grinder to update it.");
-      }
+void main() {
+  synchronize.sources.forEach((sourcePath, targetPath) {
+    test("synchronized file $targetPath is up-to-date", () {
+      var target = File(targetPath).readAsStringSync();
+      var actualHash = _checksumPattern.firstMatch(target)[1];
+
+      var source = File(sourcePath).readAsBytesSync();
+      var expectedHash = sha1.convert(source);
+      expect(actualHash, equals(expectedHash),
+          reason: "$targetPath is out-of-date.\n"
+              "Run pub run grinder to update it.");
     });
   });
 }
